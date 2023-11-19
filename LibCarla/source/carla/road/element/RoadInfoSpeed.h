@@ -17,13 +17,8 @@ namespace element {
 
     RoadInfoSpeed(double s, double speed)
       : RoadInfo(s),
-        _speed(speed),
-        _type("Town") {}
+        _speed(speed) {}
 
-    RoadInfoSpeed(double s, double speed, std::string& type)
-      : RoadInfo(s),
-        _speed(speed),
-        _type(type) {}
     void AcceptVisitor(RoadInfoVisitor &v) final {
       v.Visit(*this);
     }
@@ -32,14 +27,9 @@ namespace element {
       return _speed;
     }
 
-    std::string GetType() const{
-      return _type;
-    }
-
   private:
 
     const double _speed;
-    const std::string _type;
   };
 
 } // namespace element

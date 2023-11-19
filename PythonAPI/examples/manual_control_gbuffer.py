@@ -36,6 +36,8 @@ Use ARROWS or WASD keys for control.
     C            : change weather (Shift+C reverse)
     Backspace    : change vehicle
 
+    U            : next gbuffer
+
     O            : open/close all doors of vehicle
     T            : toggle vehicle's telemetry
 
@@ -129,6 +131,7 @@ try:
     from pygame.locals import K_r
     from pygame.locals import K_s
     from pygame.locals import K_t
+    from pygame.locals import K_u
     from pygame.locals import K_v
     from pygame.locals import K_w
     from pygame.locals import K_x
@@ -142,6 +145,27 @@ try:
     import numpy as np
 except ImportError:
     raise RuntimeError('cannot import numpy, make sure numpy package is installed')
+
+
+
+
+gbuffer_names = [
+    'Final Color', # Image received using the regular `listen` method.
+    'Scene Color',
+    'Scene Depth',
+    'Scene Stencil',
+    'GBuffer A - WorldNormal + Object data',
+    'GBuffer B - HDR + Shading model + selective output mask',
+    'GBuffer C - Diffuse + indirect irradiance or ambient occlusion (depending on selective output mask)',
+    'GBuffer D - Material shading model info',
+    'GBuffer E - Precomputed shadow factor',
+    'GBuffer F - World tangent + anisotropy',
+    'Velocity',
+    'Screen-Space Ambient Occlusion',
+    'Custom Depth',
+    'Custom Stencil'
+]
+
 
 
 # ==============================================================================
@@ -246,8 +270,6 @@ class World(object):
         # Get a random blueprint.
         blueprint = random.choice(get_actor_blueprints(self.world, self._actor_filter, self._actor_generation))
         blueprint.set_attribute('role_name', self.actor_role_name)
-        if blueprint.has_attribute('terramechanics'):
-            blueprint.set_attribute('terramechanics', 'true')
         if blueprint.has_attribute('color'):
             color = random.choice(blueprint.get_attribute('color').recommended_values)
             blueprint.set_attribute('color', color)
@@ -375,6 +397,7 @@ class KeyboardControl(object):
         self._autopilot_enabled = start_in_autopilot
         self._ackermann_enabled = False
         self._ackermann_reverse = 1
+        
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
             self._ackermann_control = carla.VehicleAckermannControl()
@@ -463,6 +486,9 @@ class KeyboardControl(object):
                             world.hud.notification("Enabled Vehicle Telemetry")
                         except Exception:
                             pass
+                elif event.key == K_u:
+                    if world.camera_manager.next_gbuffer():
+                        world.hud.notification(gbuffer_names[world.camera_manager.output_texture_id])
                 elif event.key > K_0 and event.key <= K_9:
                     index_ctrl = 0
                     if pygame.key.get_mods() & KMOD_CTRL:
@@ -1085,6 +1111,7 @@ class CameraManager(object):
         self._parent = parent_actor
         self.hud = hud
         self.recording = False
+        self.output_texture_id = 0
         bound_x = 0.5 + self._parent.bounding_box.extent.x
         bound_y = 0.5 + self._parent.bounding_box.extent.y
         bound_z = 0.5 + self._parent.bounding_box.extent.z
@@ -1092,17 +1119,17 @@ class CameraManager(object):
 
         if not self._parent.type_id.startswith("walker.pedestrian"):
             self._camera_transforms = [
-                (carla.Transform(carla.Location(x=-2.0*bound_x, y=+0.0*bound_y, z=2.0*bound_z), carla.Rotation(pitch=8.0)), Attachment.SpringArmGhost),
+                (carla.Transform(carla.Location(x=-2.0*bound_x, y=+0.0*bound_y, z=2.0*bound_z), carla.Rotation(pitch=8.0)), Attachment.SpringArm),
                 (carla.Transform(carla.Location(x=+0.8*bound_x, y=+0.0*bound_y, z=1.3*bound_z)), Attachment.Rigid),
-                (carla.Transform(carla.Location(x=+1.9*bound_x, y=+1.0*bound_y, z=1.2*bound_z)), Attachment.SpringArmGhost),
-                (carla.Transform(carla.Location(x=-2.8*bound_x, y=+0.0*bound_y, z=4.6*bound_z), carla.Rotation(pitch=6.0)), Attachment.SpringArmGhost),
+                (carla.Transform(carla.Location(x=+1.9*bound_x, y=+1.0*bound_y, z=1.2*bound_z)), Attachment.SpringArm),
+                (carla.Transform(carla.Location(x=-2.8*bound_x, y=+0.0*bound_y, z=4.6*bound_z), carla.Rotation(pitch=6.0)), Attachment.SpringArm),
                 (carla.Transform(carla.Location(x=-1.0, y=-1.0*bound_y, z=0.4*bound_z)), Attachment.Rigid)]
         else:
             self._camera_transforms = [
-                (carla.Transform(carla.Location(x=-2.5, z=0.0), carla.Rotation(pitch=-8.0)), Attachment.SpringArmGhost),
+                (carla.Transform(carla.Location(x=-2.5, z=0.0), carla.Rotation(pitch=-8.0)), Attachment.SpringArm),
                 (carla.Transform(carla.Location(x=1.6, z=1.7)), Attachment.Rigid),
-                (carla.Transform(carla.Location(x=2.5, y=0.5, z=0.0), carla.Rotation(pitch=-8.0)), Attachment.SpringArmGhost),
-                (carla.Transform(carla.Location(x=-4.0, z=2.0), carla.Rotation(pitch=6.0)), Attachment.SpringArmGhost),
+                (carla.Transform(carla.Location(x=2.5, y=0.5, z=0.0), carla.Rotation(pitch=-8.0)), Attachment.SpringArm),
+                (carla.Transform(carla.Location(x=-4.0, z=2.0), carla.Rotation(pitch=6.0)), Attachment.SpringArm),
                 (carla.Transform(carla.Location(x=0, y=-2.5, z=-0.0), carla.Rotation(yaw=90.0)), Attachment.Rigid)]
 
         self.transform_index = 1
@@ -1152,6 +1179,7 @@ class CameraManager(object):
         self.set_sensor(self.index, notify=False, force_respawn=True)
 
     def set_sensor(self, index, notify=True, force_respawn=False):
+        self.output_texture_id = 0
         index = index % len(self.sensors)
         needs_respawn = True if self.index is None else \
             (force_respawn or (self.sensors[index][2] != self.sensors[self.index][2]))
@@ -1167,13 +1195,37 @@ class CameraManager(object):
             # We need to pass the lambda a weak reference to self to avoid
             # circular reference.
             weak_self = weakref.ref(self)
-            self.sensor.listen(lambda image: CameraManager._parse_image(weak_self, image))
+            self.sensor.listen(
+                lambda image:
+                    CameraManager._parse_image(weak_self, image))
         if notify:
             self.hud.notification(self.sensors[index][2])
         self.index = index
 
     def next_sensor(self):
         self.set_sensor(self.index + 1)
+    
+    def set_gbuffer(self, index):
+        weak_self = weakref.ref(self)
+        name = self.sensors[self.index][0]
+        if name != 'sensor.camera.rgb':
+            self.hud.notification('ERROR: Unsupported operation, see log for more info.')
+            print('ERROR: GBuffer methods are not available for the current sensor type"%s". Only "sensor.camera.rgb" is currently supported.' % name)
+            return False
+        if self.output_texture_id != 0:
+            self.sensor.stop_gbuffer(self.output_texture_id - 1)
+        self.output_texture_id = index % len(gbuffer_names)
+        adjusted_index = self.output_texture_id - 1
+        if self.output_texture_id != 0:
+            if not self.sensor.is_listening_gbuffer(adjusted_index):
+                self.sensor.listen_to_gbuffer(
+                    adjusted_index,
+                    lambda image, index = self.output_texture_id:
+                        CameraManager._parse_image(weak_self, image, index))
+        return True
+
+    def next_gbuffer(self):
+        return self.set_gbuffer(self.output_texture_id + 1)
 
     def toggle_recording(self):
         self.recording = not self.recording
@@ -1184,7 +1236,7 @@ class CameraManager(object):
             display.blit(self.surface, (0, 0))
 
     @staticmethod
-    def _parse_image(weak_self, image):
+    def _parse_image(weak_self, image, index = 0):
         self = weak_self()
         if not self:
             return
@@ -1218,6 +1270,8 @@ class CameraManager(object):
             array = array[:, :, ::-1]
             self.surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))
         else:
+            if self.output_texture_id != index:
+                return
             image.convert(self.sensors[self.index][1])
             array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
             array = np.reshape(array, (image.height, image.width, 4))
@@ -1241,7 +1295,7 @@ def game_loop(args):
 
     try:
         client = carla.Client(args.host, args.port)
-        client.set_timeout(2000.0)
+        client.set_timeout(20.0)
 
         sim_world = client.get_world()
         if args.sync:

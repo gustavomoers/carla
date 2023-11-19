@@ -67,13 +67,6 @@ namespace nav {
     dtFreeNavMesh(_nav_mesh);
   }
 
-  // reference to the simulator to access API functions
-  void Navigation::SetSimulator(std::weak_ptr<carla::client::detail::Simulator> simulator)
-  {
-    _simulator = simulator;
-    _walker_manager.SetSimulator(simulator);
-  }
-
   // set the seed to use with random numbers
   void Navigation::SetSeed(unsigned int seed) {
     srand(seed);
@@ -869,8 +862,7 @@ namespace nav {
         std::lock_guard<std::mutex> lock(_mutex);
         ag = _crowd->getAgent(i);
       }
-
-      if (!ag->active || ag->paused || ag->dead) {
+      if (!ag->active || ag->paused) {
         continue;
       }
 
@@ -1207,40 +1199,6 @@ namespace nav {
     agent->dvel[0] = x;
     agent->dvel[2] = y;
     agent->dvel[1] = z;
-
-    return true;
-  }
-
-  bool Navigation::IsWalkerAlive(ActorId id, bool &alive) {
-    // check if all is ready
-    if (!_ready) {
-      return false;
-    }
-
-    DEBUG_ASSERT(_crowd != nullptr);
-
-    // get the internal index
-    auto it = _mapped_walkers_id.find(id);
-    if (it == _mapped_walkers_id.end()) {
-      return false;
-    }
-
-    // get the index found
-    int index = it->second;
-    if (index == -1) {
-      return false;
-    }
-
-    // get the walker
-    const dtCrowdAgent *agent;
-    {
-      // critical section, force single thread running this
-      std::lock_guard<std::mutex> lock(_mutex);
-      agent = _crowd->getAgent(index);
-    }
-
-    // mark
-    alive = !agent->dead;
 
     return true;
   }

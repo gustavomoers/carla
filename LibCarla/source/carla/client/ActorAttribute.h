@@ -224,6 +224,7 @@ namespace client {
       return _attribute;
     }
 
+  protected:
     virtual const std::string &GetValue() const override {
       return _attribute.value;
     }

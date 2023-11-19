@@ -44,11 +44,7 @@ namespace nav {
     /// event to pause and check for near vehicles
     struct WalkerEventStopAndCheck {
         double time;
-        bool check_for_trafficlight;
-        SharedPtr<carla::client::TrafficLight> actor;
-        WalkerEventStopAndCheck(double duration) : time(duration),
-                                                   check_for_trafficlight(true)
-                                                   {};
+        WalkerEventStopAndCheck(double duration) : time(duration) {};
     };
 
     /// walker event variant

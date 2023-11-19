@@ -86,12 +86,6 @@ public:
     IgnoreHero = InIgnoreHero;
   }
 
-  // set ignore spectator
-  void SetIgnoreSpectator(bool InIgnoreSpectator)
-  {
-    IgnoreSpectator = InIgnoreSpectator;
-  }
-
   // check if after a map is loaded, we need to replay
   void CheckPlayAfterMapLoaded(void);
 
@@ -125,7 +119,6 @@ private:
   double TimeFactor { 1.0 };
   // ignore hero vehicles
   bool IgnoreHero { false };
-  bool IgnoreSpectator { true };
   std::unordered_map<uint32_t, bool> IsHeroMap;
 
   // utils
@@ -141,7 +134,7 @@ private:
   void ProcessToTime(double Time, bool IsFirstTime = false);
 
   void ProcessVisualTime(void);
-
+  
   void ProcessEventsAdd(void);
   void ProcessEventsDel(void);
   void ProcessEventsParent(void);
@@ -151,15 +144,13 @@ private:
   void ProcessStates(void);
 
   void ProcessAnimVehicle(void);
-  void ProcessAnimVehicleWheels(void);
   void ProcessAnimWalker(void);
-  void ProcessAnimBiker(void);
 
   void ProcessLightVehicle(void);
   void ProcessLightScene(void);
 
   void ProcessWalkerBones(void);
-
+  
   // positions
   void UpdatePositions(double Per, double DeltaTime);
 

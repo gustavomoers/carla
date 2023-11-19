@@ -6,8 +6,6 @@
 
 #include "test.h"
 
-#include <carla/Buffer.h>
-#include <carla/BufferView.h>
 #include <carla/streaming/Client.h>
 #include <carla/streaming/Server.h>
 
@@ -22,9 +20,7 @@ static auto make_special_message(size_t size) {
   std::vector<uint32_t> v(size/sizeof(uint32_t), 42u);
   carla::Buffer msg(v);
   EXPECT_EQ(msg.size(), size);
-  carla::SharedBufferView BufView = carla::BufferView::CreateFrom(std::move(msg));
-
-  return BufView;
+  return msg;
 }
 
 class Benchmark {
@@ -41,9 +37,9 @@ public:
   void AddStream() {
     Stream stream = _server.MakeStream();
 
-    _client.Subscribe(stream.token(), [this](carla::Buffer msg) {
-      carla::SharedBufferView BufView = carla::BufferView::CreateFrom(std::move(msg));
-      DEBUG_ASSERT_EQ(BufView->size(), _message->size());
+    _client.Subscribe(stream.token(), [this](carla::Buffer DEBUG_ONLY(msg)) {
+      DEBUG_ASSERT_EQ(msg.size(), _message.size());
+      DEBUG_ASSERT(msg == _message);
       boost::asio::post(_client_callback, [this]() {
         CARLA_PROFILE_FPS(client, listen_callback);
         ++_number_of_messages_received;
@@ -73,7 +69,7 @@ public:
           std::this_thread::sleep_for(11ms); // ~90FPS.
           {
             CARLA_PROFILE_SCOPE(game, write_to_stream);
-            stream.Write(_message);
+            stream << _message.buffer();
           }
         }
       });
@@ -115,7 +111,7 @@ private:
 
   Client _client;
 
-  const carla::SharedBufferView _message;
+  const carla::Buffer _message;
 
   boost::asio::io_context _client_callback;
 

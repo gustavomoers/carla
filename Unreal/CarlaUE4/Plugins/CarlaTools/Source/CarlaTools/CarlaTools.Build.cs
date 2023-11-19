@@ -6,8 +6,6 @@ using UnrealBuildTool;
 
 public class CarlaTools : ModuleRules
 {
-  bool UsingHoudini = true;
-  bool bUsingOmniverseConnector = false;
   private bool IsWindows(ReadOnlyTargetRules Target)
   {
     return (Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32);
@@ -23,49 +21,30 @@ public class CarlaTools : ModuleRules
     {
       bEnableExceptions = true;
     }
-
-    string CarlaPluginPath = Path.GetFullPath( ModuleDirectory );
-    string ConfigDir =  Path.GetFullPath(Path.Combine(CarlaPluginPath, "../../../../Config/"));
-    string OptionalModulesFile = Path.Combine(ConfigDir, "OptionalModules.ini");
-    string[] text = System.IO.File.ReadAllLines(OptionalModulesFile);
-    foreach (string line in text)
-    {
-      if (line.Contains("Omniverse ON"))
-      {
-        Console.WriteLine("Enabling OmniverseConnector");
-        bUsingOmniverseConnector = true;
-        PublicDefinitions.Add("WITH_OMNIVERSE");
-        PrivateDefinitions.Add("WITH_OMNIVERSE");
-      }
-    }
-
+		
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
 			}
 			);
-
-
+				
+		
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
 			}
 			);
-
-
+			
+		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-        "Core",
-        "ProceduralMeshComponent",
-        "MeshDescription",
-        "RawMesh",
-        "AssetTools"
+				"Core"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
-
-
+			
+		
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -80,43 +59,15 @@ public class CarlaTools : ModuleRules
 				"Landscape",
 				"Foliage",
 				"FoliageEdit",
-        "MeshMergeUtilities",
 				"Carla",
-        "StaticMeshDescription",
 				"PhysXVehicles",
         "Json",
-        "JsonUtilities",
-        "Networking",
-        "Sockets",
-        "HTTP",
-        "RHI",
-        "RenderCore",
-        "MeshMergeUtilities",
-        "StreetMapImporting",
-        "StreetMapRuntime"
-				// ... add private dependencies that you statically link with here ...
+        "JsonUtilities"
+				// ... add private dependencies that you statically link with here ...	
 			}
 			);
-    if(UsingHoudini)
-    {
-      PrivateDependencyModuleNames.AddRange(
-        new string[]
-        {
-          "HoudiniEngine",
-          "HoudiniEngineEditor",
-          "HoudiniEngineRuntime"
-        });
-    }
-    if(bUsingOmniverseConnector)
-    {
-      PrivateDependencyModuleNames.AddRange(
-        new string[]
-        {
-          "OmniverseUSD",
-          "OmniverseRuntime"
-        });
-    }
-
+		
+		
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
@@ -146,10 +97,7 @@ public class CarlaTools : ModuleRules
   private void AddBoostLibs(string LibPath)
   {
     string [] files = Directory.GetFiles(LibPath, "*boost*.lib");
-    foreach (string file in files)
-    {
-      PublicAdditionalLibraries.Add(file);
-    }
+    foreach (string file in files) PublicAdditionalLibraries.Add(file);
   }
 
 

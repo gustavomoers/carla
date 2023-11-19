@@ -5,8 +5,6 @@
 
 #include "Carla.h"
 #include "Carla/Sensor/RssSensor.h"
-#include "Actor/ActorBlueprintFunctionLibrary.h"
-#include "Engine/CollisionProfile.h"
 #include "StaticMeshResources.h"
 
 FActorDefinition ARssSensor::GetSensorDefinition()

@@ -27,10 +27,6 @@ if not "%1"=="" (
     if "%1"=="--help" (
         goto help
     )
-    if "%1"=="--generator" (
-        set GENERATOR=%2
-        shift
-    )
     shift
     goto :arg-parse
 )
@@ -38,7 +34,6 @@ if not "%1"=="" (
 rem If not set set the build dir to the current dir
 if "%BUILD_DIR%" == "" set BUILD_DIR=%~dp0
 if not "%BUILD_DIR:~-1%"=="\" set BUILD_DIR=%BUILD_DIR%\
-if %GENERATOR% == "" set GENERATOR="Visual Studio 16 2019"
 
 rem ============================================================================
 rem -- Get Eigen (Chrono dependency) -------------------------------------------
@@ -101,14 +96,8 @@ if not exist %CHRONO_INSTALL_DIR% (
 
     cd "%CHRONO_BUILD_DIR%"
 
-    echo.%GENERATOR% | findstr /C:"Visual Studio" >nul && (
-        set PLATFORM=-A x64
-    ) || (
-        set PLATFORM=
-    )
-
     echo %FILE_N% Compiling Chrono.
-    cmake -G %GENERATOR% %PLATFORM%^
+    cmake -G "Visual Studio 16 2019" -A x64^
         -DCMAKE_BUILD_TYPE=Release^
         -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP"^
         -DEIGEN3_INCLUDE_DIR="%EIGEN_INCLUDE%"^

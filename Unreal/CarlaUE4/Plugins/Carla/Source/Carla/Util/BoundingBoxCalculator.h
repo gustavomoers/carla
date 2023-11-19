@@ -10,9 +10,9 @@
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 
-#include "GameFramework/Actor.h"
-
 #include "BoundingBoxCalculator.generated.h"
+
+class AActor;
 
 UCLASS()
 class CARLA_API UBoundingBoxCalculator : public UBlueprintFunctionLibrary

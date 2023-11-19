@@ -7,9 +7,6 @@
 #include "Carla.h"
 #include "Carla/Sensor/WorldObserver.h"
 #include "Carla/Actor/ActorData.h"
-#include "Carla/Actor/ActorRegistry.h"
-#include "Carla/Game/CarlaEpisode.h"
-#include "Carla/Game/CarlaEngine.h"
 
 #include "Carla/Traffic/TrafficLightBase.h"
 #include "Carla/Traffic/TrafficLightComponent.h"
@@ -371,10 +368,6 @@ void FWorldObserver::BroadcastTick(
     bool PendingLightUpdates)
 {
   TRACE_CPUPROFILER_EVENT_SCOPE_STR(__FUNCTION__);
-
-  if (!Stream.IsStreamReady())
-    return;
-
   auto AsyncStream = Stream.MakeAsyncDataStream(*this, Episode.GetElapsedGameTime());
 
   carla::Buffer buffer = FWorldObserver_Serialize(
@@ -384,5 +377,5 @@ void FWorldObserver::BroadcastTick(
       MapChange,
       PendingLightUpdates);
 
-  AsyncStream.SerializeAndSend(*this, std::move(buffer));
+  AsyncStream.Send(*this, std::move(buffer));
 }

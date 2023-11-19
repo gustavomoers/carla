@@ -23,19 +23,14 @@ if not "%1"=="" (
         set BUILD_DIR=%~dpn2
         shift
     )
-    if "%1"=="--generator" (
-        set GENERATOR=%2
-        shift
-    )
+
     if "%1"=="--delete-src" (
         set DEL_SRC=true
     )
-    
+
     shift
     goto :arg-parse
 )
-
-if %GENERATOR% == "" set GENERATOR="Visual Studio 16 2019"
 
 rem If not set set the build dir to the current dir
 if "%BUILD_DIR%" == "" set BUILD_DIR=%~dp0
@@ -69,13 +64,7 @@ if not exist "%GT_BUILD_DIR%" (
 cd "%GT_BUILD_DIR%"
 echo %FILE_N% Generating build...
 
-echo.%GENERATOR% | findstr /C:"Visual Studio" >nul && (
-    set PLATFORM=-A x64
-) || (
-    set PLATFORM=
-)
-
-cmake .. -G %GENERATOR% %PLATFORM%^
+cmake .. -G "Visual Studio 16 2019" -A x64^
     -DCMAKE_BUILD_TYPE=Release^
     -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP"^
     -DCMAKE_INSTALL_PREFIX="%GT_INSTALL_DIR:\=/%"^
@@ -127,8 +116,8 @@ rem ============================================================================
 
 :error_install
     echo.
-    echo %FILE_N% [%GENERATOR% Win64 ERROR] An error ocurred while installing using %GENERATOR% Win64.
-    echo %FILE_N% [%GENERATOR% Win64 ERROR] Possible causes:
+    echo %FILE_N% [Visual Studio 16 2019 Win64 ERROR] An error ocurred while installing using Visual Studio 16 2019 Win64.
+    echo %FILE_N% [Visual Studio 16 2019 Win64 ERROR] Possible causes:
     echo %FILE_N%                - Make sure you have Visual Studio installed.
     echo %FILE_N%                - Make sure you have the "x64 Visual C++ Toolset" in your path.
     echo %FILE_N%                  For example using the "Visual Studio x64 Native Tools Command Prompt",

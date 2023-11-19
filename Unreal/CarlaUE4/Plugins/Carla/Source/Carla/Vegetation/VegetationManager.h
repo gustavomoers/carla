@@ -10,7 +10,6 @@
 #include "ProceduralFoliageVolume.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "InstancedFoliageActor.h"
 
 #include "Containers/Array.h"
 #include "Containers/Map.h"

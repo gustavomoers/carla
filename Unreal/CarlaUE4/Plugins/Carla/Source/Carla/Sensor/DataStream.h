@@ -37,34 +37,22 @@ public:
   ///
   /// @pre This functions needs to be called in the game-thread.
   template <typename SensorT>
-  FAsyncDataStreamTmpl<T> MakeAsyncDataStream(const SensorT &Sensor, double Timestamp)
+  auto MakeAsyncDataStream(const SensorT &Sensor, double Timestamp)
   {
     check(Stream.has_value());
     return FAsyncDataStreamTmpl<T>{Sensor, Timestamp, *Stream};
-  }
-
-  bool IsStreamReady()
-  {
-    return Stream.has_value();
   }
 
   /// Return the token that allows subscribing to this stream.
   auto GetToken() const
   {
     check(Stream.has_value());
-    return Stream->token();
-  }
-
-  uint64_t GetSensorType()
-  {
-    check(Stream.has_value());
-    return Stream->get_stream_id();
+    return (*Stream).token();
   }
 
   bool AreClientsListening()
   {
-    check(Stream.has_value());
-    return Stream->AreClientsListening();
+    return Stream ? Stream->AreClientsListening() : false;
   }
 
 private:

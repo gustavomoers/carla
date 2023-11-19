@@ -69,6 +69,9 @@ private:
 
   TMap<UMaterial*, float> ActiveBlendables;
 
+  UPROPERTY(VisibleAnywhere)
+  TArray<ASceneCaptureCamera*> Sensors;
+
   UPROPERTY(EditAnywhere, Category = "Weather")
   bool DayNightCycle = true;
 };

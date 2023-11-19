@@ -13,17 +13,10 @@
 #include "carla/streaming/detail/Types.h"
 #include "carla/streaming/detail/tcp/Message.h"
 
-#if defined(__clang__)
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Wshadow"
-#endif
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
-#if defined(__clang__)
-#  pragma clang diagnostic pop
-#endif
 
 #include <functional>
 #include <memory>
@@ -65,11 +58,11 @@ namespace tcp {
     }
 
     template <typename... Buffers>
-    static auto MakeMessage(Buffers... buffers) {
+    static auto MakeMessage(Buffers &&... buffers) {
       static_assert(
-          are_same<SharedBufferView, Buffers...>::value,
-          "This function only accepts arguments of type BufferView.");
-      return std::make_shared<const Message>(buffers...);
+          are_same<Buffer, Buffers...>::value,
+          "This function only accepts arguments of type Buffer.");
+      return std::make_shared<const Message>(std::move(buffers)...);
     }
 
     /// Writes some data to the socket.
@@ -77,8 +70,8 @@ namespace tcp {
 
     /// Writes some data to the socket.
     template <typename... Buffers>
-    void Write(Buffers... buffers) {
-      Write(MakeMessage(buffers...));
+    void Write(Buffers &&... buffers) {
+      Write(MakeMessage(std::move(buffers)...));
     }
 
     /// Post a job to close the session.
@@ -88,7 +81,7 @@ namespace tcp {
 
     void StartTimer();
 
-    void CloseNow(boost::system::error_code ec = boost::system::error_code());
+    void CloseNow();
 
     friend class Server;
 

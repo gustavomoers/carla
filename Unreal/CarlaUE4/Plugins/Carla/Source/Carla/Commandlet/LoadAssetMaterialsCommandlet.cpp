@@ -9,7 +9,6 @@
 #if WITH_EDITOR
 #include "FileHelpers.h"
 #endif
-#include "Misc/FileHelper.h"
 #include "JsonObject.h"
 #include "JsonSerializer.h"
 #include "UObject/ConstructorHelpers.h"
@@ -144,7 +143,7 @@ void ULoadAssetMaterialsCommandlet::ApplyRoadPainterMaterials(const FString &Loa
 
       // Acquire the TilesInfo.txt file for storing the tile data (offset and size)
       TArray<FString> FileList;
-      IFileManager::Get().FindFilesRecursive(FileList, *(FPaths::ProjectContentDir() + "/" + PackageName + "/Maps/" + MapName), *(FString("TilesInfo.txt")), true, false, false);
+      IFileManager::Get().FindFilesRecursive(FileList, *(FPaths::ProjectContentDir() + "/" + PackageName), *(FString("TilesInfo.txt")), true, false, false);
 
       FString TxtFile;
       if (FFileHelper::LoadFileToString(TxtFile, *FileList[0]) == true) {
@@ -199,11 +198,8 @@ void ULoadAssetMaterialsCommandlet::ApplyRoadPainterMaterials(const FString &Loa
     float MaxYSizeCm = MaxYSize * 100.0f;
 
     float TileSizeCm = TileData.Size * 100.0f;
-    float FirstTileWorldLocationX = TileData.FirstTileCenterX * 100.0f;
-    float FirstTileWorldLocationY = TileData.FirstTileCenterY * 100.0f;
-
-    float CenterOfTileX = FirstTileWorldLocationX + (XIndex * TileSizeCm);
-    float CenterOfTileY = FirstTileWorldLocationY - (YIndex * TileSizeCm);
+    float TileWorldLocationX = TileData.FirstTileCenterX * 100.0f;
+    float TileWorldLocationY = TileData.FirstTileCenterY * 100.0f;
 
     for (int32 i = 0; i < DecalsProperties.DecalMaterials.Num(); ++i) {
 
@@ -228,9 +224,8 @@ void ULoadAssetMaterialsCommandlet::ApplyRoadPainterMaterials(const FString &Loa
             // Transform the location from world coords to tile coordinates.
             // The location we get is the location of the XODR waypoint, which is in WORLD coordinates
             // The Y coordinates are reversed! -Y = Y and Y = -Y
-
-            FinalLocation.X -= CenterOfTileX;
-            FinalLocation.Y -= CenterOfTileY;
+            FinalLocation.X -= TileWorldLocationX + (XIndex * TileSizeCm);
+            FinalLocation.Y -= TileWorldLocationY - (YIndex * TileSizeCm);
 
             FActorSpawnParameters SpawnParams;
             SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

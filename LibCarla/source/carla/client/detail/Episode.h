@@ -14,7 +14,7 @@
 #include "carla/client/detail/CachedActorList.h"
 #include "carla/client/detail/CallbackList.h"
 #include "carla/client/detail/EpisodeState.h"
-#include "carla/client/detail/EpisodeProxy.h"
+#include "carla/client/detail/WalkerNavigation.h"
 #include "carla/rpc/EpisodeInfo.h"
 
 #include <vector>
@@ -24,7 +24,6 @@ namespace client {
 namespace detail {
 
   class Client;
-  class WalkerNavigation;
 
   /// Holds the current episode, and the current episode state.
   ///
@@ -36,7 +35,7 @@ namespace detail {
       private NonCopyable {
   public:
 
-    explicit Episode(Client &client, std::weak_ptr<Simulator> simulator);
+    explicit Episode(Client &client);
 
     ~Episode();
 
@@ -48,6 +47,14 @@ namespace detail {
 
     std::shared_ptr<const EpisodeState> GetState() const {
       return _state.load();
+    }
+
+    std::shared_ptr<WalkerNavigation> CreateNavigationIfMissing();
+
+    std::shared_ptr<WalkerNavigation> GetNavigation() const {
+      auto nav = _navigation.load();
+      DEBUG_ASSERT(nav != nullptr);
+      return nav;
     }
 
     void RegisterActor(rpc::Actor actor) {
@@ -88,9 +95,17 @@ namespace detail {
       _on_light_update_callbacks.Remove(id);
     }
 
-    void SetPedestriansCrossFactor(float percentage);
+    void SetPedestriansCrossFactor(float percentage) {
+      auto nav = _navigation.load();
+      DEBUG_ASSERT(nav != nullptr);
+      nav->SetPedestriansCrossFactor(percentage);
+    }
 
-    void SetPedestriansSeed(unsigned int seed);
+    void SetPedestriansSeed(unsigned int seed) {
+      auto nav = _navigation.load();
+      DEBUG_ASSERT(nav != nullptr);
+      nav->SetPedestriansSeed(seed);
+    }
 
     void AddPendingException(std::string e) {
       _pending_exceptions = true;
@@ -99,11 +114,11 @@ namespace detail {
 
     bool HasMapChangedSinceLastCall();
 
-    std::shared_ptr<WalkerNavigation> CreateNavigationIfMissing();
+    void NavigationTick();
 
   private:
 
-    Episode(Client &client, const rpc::EpisodeInfo &info, std::weak_ptr<Simulator> simulator);
+    Episode(Client &client, const rpc::EpisodeInfo &info);
 
     void OnEpisodeStarted();
 
@@ -112,6 +127,8 @@ namespace detail {
     Client &_client;
 
     AtomicSharedPtr<const EpisodeState> _state;
+
+    AtomicSharedPtr<WalkerNavigation> _navigation;
 
     std::string _pending_exceptions_msg;
 
@@ -125,15 +142,11 @@ namespace detail {
 
     RecurrentSharedFuture<WorldSnapshot> _snapshot;
 
-    AtomicSharedPtr<WalkerNavigation> _walker_navigation;
-
     const streaming::Token _token;
 
     bool _pending_exceptions = false;
 
     bool _should_update_map = true;
-
-    std::weak_ptr<Simulator> _simulator;
   };
 
 } // namespace detail

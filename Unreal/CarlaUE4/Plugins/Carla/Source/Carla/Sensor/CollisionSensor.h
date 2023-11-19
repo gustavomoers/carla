@@ -36,8 +36,4 @@ private:
       AActor *OtherActor,
       FVector NormalImpulse,
       const FHitResult &Hit);
-
-  /// Registry that saves all collisions. Used to avoid sending the same collision more than once per frame,
-  /// as the collision sensor uses the PhysX substepping tick. Helps with sensor usage and stream overload.
-  std::vector<std::tuple<uint64_t, AActor*, AActor*>> CollisionRegistry;
 };

@@ -6,7 +6,6 @@
 
 #include "BaseVegetationActor.h"
 
-#include "Carla/Carla.h"
 
 
 void ABaseVegetationActor::BeginPlay()

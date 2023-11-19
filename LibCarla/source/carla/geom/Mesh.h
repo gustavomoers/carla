@@ -95,9 +95,6 @@ namespace geom {
     /// Appends a vertex to the vertices list, they will be read 3 in 3.
     void AddUV(uv_type uv);
 
-    /// Appends uvs.
-    void AddUVs(const std::vector<uv_type> & uv);
-
     /// Starts applying a new material to the new added triangles.
     void AddMaterial(const std::string &material_name);
 
@@ -134,9 +131,7 @@ namespace geom {
 
     const std::vector<normal_type> &GetNormals() const;
 
-    const std::vector<index_type>& GetIndexes() const;
-
-    std::vector<index_type> &GetIndexes();
+    const std::vector<index_type> &GetIndexes() const;
 
     size_t GetIndexesNum() const;
 
@@ -146,9 +141,6 @@ namespace geom {
 
     /// Returns the index of the last added vertex (number of vertices).
     size_t GetLastVertexIndex() const;
-
-    /// Merges two meshes into a single mesh
-    Mesh& ConcatMesh(const Mesh& rhs, int num_vertices_to_link);
 
     /// Merges two meshes into a single mesh
     Mesh &operator+=(const Mesh &rhs);
@@ -213,12 +205,6 @@ namespace geom {
           Mesh.Normals[Triangle.v1] = Normal;
           Mesh.Normals[Triangle.v2] = Normal;
         }
-      }
-
-      for (const auto uv : GetUVs())
-      {
-        // From meters to centimeters
-        Mesh.UV0.Add(FVector2D{uv.x, uv.y});
       }
 
       return Mesh;

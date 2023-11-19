@@ -6,7 +6,6 @@
 
 #include "Carla.h"
 #include "Carla/Game/CarlaEpisode.h"
-#include "Carla/Game/CarlaStatics.h"
 
 #include <compiler/disable-ue4-macros.h>
 #include <carla/opendrive/OpenDriveParser.h>
@@ -18,7 +17,6 @@
 #include "Carla/Util/RandomEngine.h"
 #include "Carla/Vehicle/VehicleSpawnPoint.h"
 #include "Carla/Game/CarlaStatics.h"
-#include "Carla/Game/CarlaStaticDelegates.h"
 #include "Carla/MapGen/LargeMapManager.h"
 
 #include "Engine/StaticMeshActor.h"
@@ -264,6 +262,8 @@ carla::rpc::Actor UCarlaEpisode::SerializeActor(FCarlaActor *CarlaActor) const
   return Actor;
 }
 
+static FString GetRelevantTagAsString(const TSet<crp::CityObjectLabel> &SemanticTags);
+
 carla::rpc::Actor UCarlaEpisode::SerializeActor(AActor* Actor) const
 {
   FCarlaActor* CarlaActor = FindCarlaActor(Actor);
@@ -279,7 +279,7 @@ carla::rpc::Actor UCarlaEpisode::SerializeActor(AActor* Actor) const
     TSet<crp::CityObjectLabel> SemanticTags;
     ATagger::GetTagsOfTaggedActor(*Actor, SemanticTags);
     FActorDescription Description;
-    Description.Id = TEXT("static.") + CarlaGetRelevantTagAsString(SemanticTags);
+    Description.Id = TEXT("static.") + GetRelevantTagAsString(SemanticTags);
     SerializedActor.description = Description;
     SerializedActor.semantic_tags.reserve(SemanticTags.Num());
     for (auto &&Tag : SemanticTags)

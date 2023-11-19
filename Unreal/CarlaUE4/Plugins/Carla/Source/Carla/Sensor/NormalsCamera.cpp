@@ -9,8 +9,6 @@
 
 #include "Carla/Sensor/PixelReader.h"
 
-#include "Carla/Actor/ActorBlueprintFunctionLibrary.h"
-
 FActorDefinition ANormalsCamera::GetSensorDefinition()
 {
   return UActorBlueprintFunctionLibrary::MakeNormalsCameraDefinition();

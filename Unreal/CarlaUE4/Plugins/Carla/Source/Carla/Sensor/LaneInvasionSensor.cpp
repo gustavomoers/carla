@@ -5,7 +5,6 @@
 
 #include "Carla.h"
 #include "Carla/Sensor/LaneInvasionSensor.h"
-#include "Carla/Actor/ActorBlueprintFunctionLibrary.h"
 
 FActorDefinition ALaneInvasionSensor::GetSensorDefinition()
 {

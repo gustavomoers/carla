@@ -9,24 +9,24 @@
 #include "ProceduralCustomMesh.generated.h"
 
 /// A definition of a Carla Mesh.
-USTRUCT(Blueprintable)
+USTRUCT()
 struct CARLA_API FProceduralCustomMesh
 {
   GENERATED_BODY()
 
-  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="VertexData")
+  UPROPERTY()
   TArray<FVector> Vertices;
 
-  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="VertexData")
+  UPROPERTY()
   TArray<int32> Triangles;
 
-  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="VertexData")
+  UPROPERTY()
   TArray<FVector> Normals;
 
-  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="VertexData")
+  UPROPERTY()
   TArray<FVector2D> UV0;
 
-  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="VertexData")
+  UPROPERTY()
   TArray<FLinearColor> VertexColor;
 
   // This is commented due to an strange bug including ProceduralMeshComponent.h

@@ -8,8 +8,6 @@
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 
-#include "GameFramework/Actor.h"
-
 #include <compiler/disable-ue4-macros.h>
 #include "carla/rpc/ObjectLabel.h"
 #include "carla/rpc/LabelledPoint.h"
@@ -19,6 +17,8 @@
 #include <utility>
 
 #include "RayTracer.generated.h"
+
+class AActor;
 
 UCLASS()
 class CARLA_API URayTracer : public UBlueprintFunctionLibrary

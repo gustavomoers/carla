@@ -9,8 +9,6 @@
 #include <string>
 #include <sstream>
 #include <ios>
-#include <iostream>
-#include <fstream>
 
 #include <carla/geom/Math.h>
 
@@ -104,10 +102,6 @@ namespace geom {
 
   void Mesh::AddUV(uv_type uv) {
     _uvs.push_back(uv);
-  }
-
-  void Mesh::AddUVs(const std::vector<uv_type> & uv) {
-    std::copy(uv.begin(), uv.end(), std::back_inserter(_uvs));
   }
 
   void Mesh::AddMaterial(const std::string &material_name) {
@@ -272,9 +266,6 @@ namespace geom {
     return _indexes;
   }
 
-  std::vector<Mesh::index_type>& Mesh::GetIndexes() {
-    return _indexes;
-  }
   size_t Mesh::GetIndexesNum() const {
     return _indexes.size();
   }
@@ -289,59 +280,6 @@ namespace geom {
 
   size_t Mesh::GetLastVertexIndex() const {
     return _vertices.size();
-  }
-
-  Mesh& Mesh::ConcatMesh(const Mesh& rhs, int num_vertices_to_link) {
-
-    if (!rhs.IsValid()){
-      return *this += rhs;
-    }
-    const size_t v_num = GetVerticesNum();
-    const size_t i_num = GetIndexesNum();
-
-    _vertices.insert(
-      _vertices.end(),
-      rhs.GetVertices().begin(),
-      rhs.GetVertices().end());
-
-    _normals.insert(
-      _normals.end(),
-      rhs.GetNormals().begin(),
-      rhs.GetNormals().end());
-
-    const size_t vertex_to_start_concating = v_num - num_vertices_to_link;
-    for( size_t i = 1; i < num_vertices_to_link; ++i ) {
-      _indexes.push_back( vertex_to_start_concating + i );
-      _indexes.push_back( vertex_to_start_concating + i  + 1 );
-      _indexes.push_back( v_num + i );
-
-      _indexes.push_back( vertex_to_start_concating + i + 1);
-      _indexes.push_back( v_num + i + 1);
-      _indexes.push_back( v_num + i);
-    }
-
-    std::transform(
-      rhs.GetIndexes().begin(),
-      rhs.GetIndexes().end(),
-      std::back_inserter(_indexes),
-      [=](size_t index) {return index + v_num; });
-
-    _uvs.insert(
-      _uvs.end(),
-      rhs.GetUVs().begin(),
-      rhs.GetUVs().end());
-
-    std::transform(
-      rhs.GetMaterials().begin(),
-      rhs.GetMaterials().end(),
-      std::back_inserter(_materials),
-      [=](MeshMaterial mat) {
-        mat.index_start += i_num;
-        mat.index_end += i_num;
-        return mat;
-      });
-
-    return *this;
   }
 
   Mesh &Mesh::operator+=(const Mesh &rhs) {

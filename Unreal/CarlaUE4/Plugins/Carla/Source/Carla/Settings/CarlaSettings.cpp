@@ -155,10 +155,6 @@ void UCarlaSettings::LoadSettings()
     {
       bDisableRendering = true;
     }
-    if (FParse::Param(FCommandLine::Get(), TEXT("-ros2")))
-    {
-      ROS2 = true;
-    }
   }
 }
 

@@ -11,11 +11,6 @@
 #include <cstdio>
 
 namespace carla {
-
-namespace ros2 {
-  class ROS2;
-}
-
 namespace sensor {
 
 namespace s11n {
@@ -74,7 +69,6 @@ namespace data {
     std::vector<RadarDetection> _detections;
 
   friend class s11n::RadarSerializer;
-  friend class carla::ros2::ROS2;
   };
 
 } // namespace s11n

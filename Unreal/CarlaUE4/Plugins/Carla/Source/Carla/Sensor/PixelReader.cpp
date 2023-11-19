@@ -13,6 +13,27 @@
 #include "Runtime/ImageWriteQueue/Public/ImageWriteQueue.h"
 
 // =============================================================================
+// -- Local variables and types ------------------------------------------------
+// =============================================================================
+
+struct LockTexture
+{
+  LockTexture(FRHITexture2D *InTexture, uint32 &Stride)
+    : Texture(InTexture),
+      Source(reinterpret_cast<const uint8 *>(
+            RHILockTexture2D(Texture, 0, RLM_ReadOnly, Stride, false))) {}
+
+  ~LockTexture()
+  {
+    RHIUnlockTexture2D(Texture, 0, false);
+  }
+
+  FRHITexture2D *Texture;
+
+  const uint8 *Source;
+};
+
+// =============================================================================
 // -- FPixelReader -------------------------------------------------------------
 // =============================================================================
 
@@ -24,7 +45,7 @@ void FPixelReader::WritePixelsToBuffer(
 {
   TRACE_CPUPROFILER_EVENT_SCOPE_STR("WritePixelsToBuffer");
   check(IsInRenderingThread());
-
+  
   auto RenderResource =
       static_cast<const FTextureRenderTarget2DResource *>(RenderTarget.Resource);
   FTexture2DRHIRef Texture = RenderResource->GetRenderTargetTexture();
@@ -38,8 +59,8 @@ void FPixelReader::WritePixelsToBuffer(
   EPixelFormat BackBufferPixelFormat = Texture->GetFormat();
   {
     TRACE_CPUPROFILER_EVENT_SCOPE_STR("EnqueueCopy");
-    BackBufferReadback->EnqueueCopy(RHICmdList,
-                                    Texture,
+    BackBufferReadback->EnqueueCopy(RHICmdList, 
+                                    Texture, 
                                     FResolveRect(0, 0, BackBufferSize.X, BackBufferSize.Y));
   }
 
@@ -55,7 +76,7 @@ void FPixelReader::WritePixelsToBuffer(
     RHICmdList.GetRenderQueryResult(Query, OldAbsTime, true);
   }
 
-  AsyncTask(ENamedThreads::HighTaskPriority, [=, Readback=std::move(BackBufferReadback)]() mutable {
+  AsyncTask(ENamedThreads::AnyNormalThreadNormalTask, [=, Readback=std::move(BackBufferReadback)]() mutable {
     {
       TRACE_CPUPROFILER_EVENT_SCOPE_STR("Wait GPU transfer");
       while (!Readback->IsReady())
@@ -63,21 +84,17 @@ void FPixelReader::WritePixelsToBuffer(
         std::this_thread::yield();
       }
     }
-
+    
+    FPixelFormatInfo PixelFormat = GPixelFormats[BackBufferPixelFormat];
+    int32 Size = (BackBufferSize.Y * (PixelFormat.BlockBytes * BackBufferSize.X));
+    void* LockedData = Readback->Lock(Size);
+    if (LockedData)
     {
-      TRACE_CPUPROFILER_EVENT_SCOPE_STR("Readback data");
-      FPixelFormatInfo PixelFormat = GPixelFormats[BackBufferPixelFormat];
-      uint32 ExpectedRowBytes = BackBufferSize.X * PixelFormat.BlockBytes;
-      int32 Size = (BackBufferSize.Y * (PixelFormat.BlockBytes * BackBufferSize.X));
-      void* LockedData = Readback->Lock(Size);
-      if (LockedData)
-      {
-        FuncForSending(LockedData, Size, Offset, ExpectedRowBytes);
-      }
-      Readback->Unlock();
-      Readback.reset();
+      FuncForSending(LockedData, Size, Offset);
     }
-  });
+    Readback->Unlock();
+    Readback.reset();
+  });  
 }
 
 bool FPixelReader::WritePixelsToArray(
@@ -107,7 +124,6 @@ TUniquePtr<TImagePixelData<FColor>> FPixelReader::DumpPixels(
   {
     return nullptr;
   }
-  PixelData->Pixels = Pixels;
   return PixelData;
 }
 

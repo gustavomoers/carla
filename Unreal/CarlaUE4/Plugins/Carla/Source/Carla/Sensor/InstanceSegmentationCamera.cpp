@@ -7,7 +7,6 @@
 #include "Carla.h"
 #include "Carla/Sensor/InstanceSegmentationCamera.h"
 #include "Carla/Game/TaggedComponent.h"
-#include "Carla/Actor/ActorBlueprintFunctionLibrary.h"
 
 #include "Carla/Sensor/PixelReader.h"
 

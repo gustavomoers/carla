@@ -71,8 +71,6 @@ namespace nav {
     bool GetAgentRoute(ActorId id, carla::geom::Location from, carla::geom::Location to,
     std::vector<carla::geom::Location> &path, std::vector<unsigned char> &area);
 
-    /// reference to the simulator to access API functions
-    void SetSimulator(std::weak_ptr<carla::client::detail::Simulator> simulator);
     /// set the seed to use with random numbers
     void SetSeed(unsigned int seed);
     /// create the crowd object
@@ -110,8 +108,6 @@ namespace nav {
     bool HasVehicleNear(ActorId id, float distance, carla::geom::Location direction);
     /// make agent look at some location
     bool SetWalkerLookAt(ActorId id, carla::geom::Location location);
-    /// return if the agent has been killed by a vehicle
-    bool IsWalkerAlive(ActorId id, bool &alive);
 
     dtCrowd *GetCrowd() { return _crowd; };
 
@@ -142,8 +138,6 @@ namespace nav {
     /// walker manager for the route planning with events
     WalkerManager _walker_manager;
 
-    std::weak_ptr<carla::client::detail::Simulator> _simulator;
-    
     mutable std::mutex _mutex;
 
     float _probability_crossing { 0.0f };

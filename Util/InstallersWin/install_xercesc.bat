@@ -27,15 +27,9 @@ if not "%1"=="" (
     if "%1"=="--help" (
         goto help
     )
-    if "%1"=="--generator" (
-        set GENERATOR=%2
-        shift
-    )
     shift
     goto :arg-parse
 )
-
-if %GENERATOR% == "" set GENERATOR="Visual Studio 16 2019"
 
 rem If not set set the build dir to the current dir
 if "%BUILD_DIR%" == "" set BUILD_DIR=%~dp0
@@ -121,13 +115,7 @@ if not exist "%XERCESC_INSTALL_DIR%include" (
     mkdir "%XERCESC_INSTALL_DIR%include"
 )
 
-echo.%GENERATOR% | findstr /C:"Visual Studio" >nul && (
-    set PLATFORM=-A x64
-) || (
-    set PLATFORM=
-)
-
-cmake .. -G %GENERATOR% %PLATFORM%^
+cmake .. -G "Visual Studio 16 2019" -A x64^
   -DCMAKE_INSTALL_PREFIX="%XERCESC_INSTALL_DIR:\=/%"^
   -DBUILD_SHARED_LIBS=OFF^
   "%BUILD_DIR%%XERCESC_BASENAME%-%XERCESC_VERSION%-source"

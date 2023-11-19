@@ -11,7 +11,6 @@
 #include "Components/PoseableMeshComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Containers/Map.h"
-#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 

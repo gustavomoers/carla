@@ -10,8 +10,6 @@
 #include "Carla/Sensor/DataStream.h"
 #include "Carla/Util/RandomEngine.h"
 
-#include "Carla/Game/CarlaEngine.h"
-
 #include "GameFramework/Actor.h"
 
 #include "Sensor.generated.h"
@@ -35,8 +33,6 @@ public:
 
   virtual void Set(const FActorDescription &Description);
 
-  boost::optional<FActorAttribute> GetAttribute(const FString Name);
-
   virtual void BeginPlay();
 
   /// Replace the FDataStream associated with this sensor.
@@ -58,11 +54,6 @@ public:
     return Stream.GetToken();
   }
 
-  bool IsStreamReady()
-  {
-    return Stream.IsStreamReady();
-  }
-
   void Tick(const float DeltaTime) final;
 
   virtual void PrePhysTick(float DeltaSeconds) {}
@@ -72,7 +63,7 @@ public:
   // Small interface to notify sensors when no clients are listening
   virtual void OnLastClientDisconnected() {};
 
-
+  
   void PostPhysTickInternal(UWorld *World, ELevelTick TickType, float DeltaSeconds);
 
   UFUNCTION(BlueprintCallable)
@@ -128,8 +119,6 @@ private:
   FDataStream Stream;
 
   FDelegateHandle OnPostTickDelegate;
-
-  FActorDescription SensorDescription;
 
   const UCarlaEpisode *Episode = nullptr;
 
