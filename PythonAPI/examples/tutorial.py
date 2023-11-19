@@ -36,12 +36,11 @@ def main():
         # to the simulator. Here we'll assume the simulator is accepting
         # requests in the localhost at port 2000.
         client = carla.Client('localhost', 2000)
-        client.set_timeout(15.0)
+        client.set_timeout(2.0)
 
         # Once we have a client we can retrieve the world that is currently
         # running.
         world = client.get_world()
-        world.unload_map_layer(carla.MapLayer.Buildings)
 
         # The world contains the list blueprints that we can use for adding new
         # actors into the simulation.
@@ -78,7 +77,7 @@ def main():
 
         # Let's add now a "depth" camera attached to the vehicle. Note that the
         # transform we give here is now relative to the vehicle.
-        camera_bp = blueprint_library.find('sensor.camera.rgb')
+        camera_bp = blueprint_library.find('sensor.camera.depth')
         camera_transform = carla.Transform(carla.Location(x=1.5, z=2.4))
         camera = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
         actor_list.append(camera)
@@ -101,7 +100,7 @@ def main():
         # vehicles.
         transform.location += carla.Location(x=40, y=-3.2)
         transform.rotation.yaw = -180.0
-        for _ in range(0, 50):
+        for _ in range(0, 10):
             transform.location.x += 8.0
 
             bp = random.choice(blueprint_library.filter('vehicle'))
@@ -114,7 +113,7 @@ def main():
                 npc.set_autopilot(True)
                 print('created %s' % npc.type_id)
 
-        time.sleep(60)
+        time.sleep(5)
 
     finally:
 
