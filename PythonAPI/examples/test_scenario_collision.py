@@ -36,6 +36,16 @@ try:
     world = client.get_world()
     #world.unload_map_layer(carla.MapLayer.Buildings)
 
+    # Set synchronous mode settings
+    # new_settings = world.get_settings()
+    # new_settings.synchronous_mode = True
+    # new_settings.fixed_delta_seconds = 0.08
+    # world.apply_settings(new_settings) 
+
+    # client.reload_world(False)
+
+
+
     # --------------
     # Spawn ego vehicle
     # --------------
@@ -77,8 +87,6 @@ try:
 
 
 
-    world.wait_for_tick()
-
     ## SEGMENTATION CAMERA
 
     seg_bp = world.get_blueprint_library().find('sensor.camera.semantic_segmentation')
@@ -112,11 +120,7 @@ try:
 
 
 
-
-    world.wait_for_tick()
-
-
-
+    
     # --------------
     # Spawn lane invasion sensor
     # --------------
@@ -135,11 +139,11 @@ try:
     actor_list.append(lane)
 
 
-    ego_vehicle.set_simulate_physics()
-    telemetry = ego_vehicle.get_telemetry_data()
+    #ego_vehicle.set_simulate_physics()
+    #ego_vehicle.show_debug_telemetry()
 
 
-    world.wait_for_tick()
+   
 
     ## creating parking vehicles
 
@@ -155,11 +159,9 @@ try:
 
     spectator = world.get_spectator()
     transform = parked_vehicle.get_transform()
-    spectator.set_transform(carla.Transform(transform.location + carla.Location(y=-10,z=2.5),
-    carla.Rotation(yaw=90)))
-    world.wait_for_tick()
-
-
+    spectator.set_transform(carla.Transform(transform.location + carla.Location(y=-10,z=25.5),
+    carla.Rotation(pitch=-90)))
+ 
     # --------------
     # Spawn pedestrian
     # --------------
@@ -169,8 +171,6 @@ try:
                                carla.Rotation(0,90,0))
     walker = world.try_spawn_actor(random.choice(walkers_blueprints), walker_loc)
     actor_list.append(walker)
-
-    world.wait_for_tick()
 
 
  
@@ -182,8 +182,10 @@ try:
 
     try:
 
-        walker.apply_control(carla.WalkerControl(carla.Vector3D(random.uniform(1, 3), 
-            random.uniform(0, 2), 0.0), speed=random.uniform(0.8, 1.5)))
+        walker.apply_control(carla.WalkerControl(carla.Vector3D(1, 0, 0.0), speed=1.2))
+
+        # walker.apply_control(carla.WalkerControl(carla.Vector3D(random.uniform(1, 3), 
+        #     random.uniform(0, 3), 0.0), speed=random.uniform(0.7, 1.2)))
 
     except:
         pass   
@@ -203,45 +205,18 @@ try:
     #ego_cam.listen(lambda data: process_img(data))
 
 
-    time.sleep(10)
+    time.sleep(5)
 
 
-except:
+except Exception as err:
+    print(Exception, err)
     print('destroying actors')
     for actor in actor_list:
         actor.destroy()
     print('done.')
 
 finally:
-
-    # try:
-    #     print('destroying actors')
-    #     print(collision_hist)
-    #     print(collision_hist[0].frame)
-    #     print(collision_hist[0].timestamp)
-    #     print(collision_hist[0].transform)
-    #     print(collision_hist[0].actor)
-    #     print(collision_hist[0].other_actor)
-    #     print(collision_hist[0].normal_impulse)
-
-    # except:
-    #     pass
-
-
-
-    # try:
-
-    #     print(lane_hist)
-    #     print(lane_hist[0].frame)
-    #     print(lane_hist[0].timestamp)
-    #     print(lane_hist[0].transform)
-    #     print(lane_hist[0].actor)
-    #     print(lane_hist[0].crossed_lane_markings)
-
-    # except:
-    #     pass
-
-    print(telemetry)
+    
     for actor in actor_list:
         actor.destroy()
     print('done.')
