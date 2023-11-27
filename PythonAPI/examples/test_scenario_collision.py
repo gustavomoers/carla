@@ -14,6 +14,7 @@ import random
 import time
 import numpy as np
 import cv2
+from controllers import PIDLongitudinalController
 
 IM_WIDTH = 640
 IM_HEIGHT = 480
@@ -174,21 +175,29 @@ try:
 
 
  
+    speed_controller = PIDLongitudinalController(ego_vehicle)
+
+
+    # #ego_vehicle.set_autopilot(True)
+    # ego_vehicle.enable_constant_velocity(carla.Vector3D(18.0,0,0))
+
+    # try:
+
+    #     walker.apply_control(carla.WalkerControl(carla.Vector3D(1, 0, 0.0), speed=1.2))
+
+    #     # walker.apply_control(carla.WalkerControl(carla.Vector3D(random.uniform(1, 3), 
+    #     #     random.uniform(0, 3), 0.0), speed=random.uniform(0.7, 1.2)))
+
+    # except:
+    #     pass   
 
 
 
-    #ego_vehicle.set_autopilot(True)
-    ego_vehicle.enable_constant_velocity(carla.Vector3D(18.0,0,0))
+    control = speed_controller.run_step(80)
+    ego_vehicle.apply_control(control)
 
-    try:
 
-        walker.apply_control(carla.WalkerControl(carla.Vector3D(1, 0, 0.0), speed=1.2))
 
-        # walker.apply_control(carla.WalkerControl(carla.Vector3D(random.uniform(1, 3), 
-        #     random.uniform(0, 3), 0.0), speed=random.uniform(0.7, 1.2)))
-
-    except:
-        pass   
 
 
    # do something with camera sensor
