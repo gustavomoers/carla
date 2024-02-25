@@ -39,6 +39,7 @@
     - `special_type` provides more information about the vehicle. It is currently restricted to *electric*, *emergency* and *taxi*, and not all vehicles have this attribute filled.
     - `has_dynamics_doors` can either be *true* or *false* depending on whether or not the vehicle has doors that can be opened using the API.
     - `has_lights` works in the same way as *has_dynamic_doors*, but differentiates between vehicles with lights, and those that don't.
+  * Added API function `get_telemetry_data` to the vehicle actor.
   * Added native ackermann controller:
     - `apply_ackermann_control`:  to apply an ackermann control command to a vehicle
     - `get_ackermann_controller_settings`: to get the last ackermann controller settings applied

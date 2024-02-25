@@ -323,7 +323,7 @@ public:
 
   virtual ECarlaServerResponse GetVehicleTelemetryData(FVehicleTelemetryData&)
   {
-      return ECarlaServerResponse::ActorTypeMismatch;
+    return ECarlaServerResponse::ActorTypeMismatch;
   }
 
   virtual ECarlaServerResponse ShowVehicleDebugTelemetry(bool)

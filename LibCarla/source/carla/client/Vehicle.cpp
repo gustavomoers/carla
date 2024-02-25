@@ -45,9 +45,8 @@ namespace client {
   }
 
   Vehicle::TelemetryData Vehicle::GetTelemetryData() const {
-      return GetEpisode().Lock()->GetVehicleTelemetryData(*this);
+    return GetEpisode().Lock()->GetVehicleTelemetryData(*this);
   }
-
 
   void Vehicle::ShowDebugTelemetry(bool enabled) {
     GetEpisode().Lock()->ShowVehicleDebugTelemetry(*this, enabled);

@@ -240,7 +240,7 @@ public:
   void DeactivateVelocityControl();
 
   UFUNCTION(Category = "CARLA Wheeled Vehicle", BlueprintCallable)
-      FVehicleTelemetryData GetVehicleTelemetryData() const;
+  FVehicleTelemetryData GetVehicleTelemetryData() const;
 
   UFUNCTION(Category = "CARLA Wheeled Vehicle", BlueprintCallable)
   void ShowDebugTelemetry(bool Enabled);

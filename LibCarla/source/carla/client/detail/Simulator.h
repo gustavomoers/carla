@@ -445,8 +445,8 @@ namespace detail {
       _client.SetActorAutopilot(vehicle.GetId(), enabled);
     }
 
-    rpc::VehicleTelemetryData GetVehicleTelemetryData(const Vehicle& vehicle) const {
-        return _client.GetVehicleTelemetryData(vehicle.GetId());
+    rpc::VehicleTelemetryData GetVehicleTelemetryData(const Vehicle &vehicle) const {
+      return _client.GetVehicleTelemetryData(vehicle.GetId());
     }
 
     void ShowVehicleDebugTelemetry(Vehicle &vehicle, bool enabled = true) {

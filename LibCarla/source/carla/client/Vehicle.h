@@ -53,7 +53,6 @@ namespace client {
     /// @warning This function does call the simulator.
     TelemetryData GetTelemetryData() const;
 
-
     /// Switch on/off this vehicle's autopilot.
     void ShowDebugTelemetry(bool enabled = true);
 
